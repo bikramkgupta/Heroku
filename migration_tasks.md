@@ -16,8 +16,8 @@ Updated as each step is completed.
 | t05 | Create `.do/app.yaml` (App Platform spec with Valkey + Spaces) | **done** | Service + Valkey DB + Spaces env vars |
 | t06 | Create `.env.example` (all env vars documented) | **done** | All vars with comments for local vs App Platform |
 | t07 | Build and run Docker locally to verify | **done** | Build OK, web UI returns 200 on port 8080 |
-| t08 | Commit and push `app-platform` branch to GitHub | pending | |
-| t09 | Create Spaces key + bucket via `doctl` + `aws` CLI | pending | |
+| t08 | Commit and push `app-platform` branch to GitHub | **done** | Pushed to origin/app-platform (commit 24cc74b) |
+| t09 | Create Spaces key + bucket via `doctl` + `aws` CLI | **done** | Key: heroku-userbot-key, Bucket: heroku-userbot-backup (nyc3) |
 | t10 | Deploy to App Platform (user provides Telegram creds) | pending | |
 | t11 | Post-deployment verification (health, web UI, Valkey, Spaces) | pending | |
 

@@ -29,5 +29,6 @@ services:
         type: SECRET
 databases:
   - name: valkey
-    engine: REDIS
-    production: false
+    engine: VALKEY
+    cluster_name: heroku-userbot-valkey
+    production: true

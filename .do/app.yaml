@@ -1,0 +1,33 @@
+name: heroku-userbot
+region: nyc
+services:
+  - name: userbot
+    dockerfile_path: Dockerfile
+    github:
+      repo: bikramkgupta/Heroku
+      branch: app-platform
+      deploy_on_push: true
+    http_port: 8080
+    instance_size_slug: apps-s-1vcpu-2gb
+    instance_count: 1
+    envs:
+      - key: DOCKER
+        value: "true"
+      - key: REDIS_URL
+        scope: RUN_TIME
+        type: SECRET
+        value: "${valkey.REDIS_URL}"
+      - key: SPACES_ENDPOINT
+        value: "https://nyc3.digitaloceanspaces.com"
+      - key: SPACES_BUCKET
+        value: "heroku-userbot-backup"
+      - key: SPACES_ACCESS_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: SPACES_SECRET_KEY
+        scope: RUN_TIME
+        type: SECRET
+databases:
+  - name: valkey
+    engine: REDIS
+    production: false

@@ -1,20 +1,15 @@
-FROM python:3.10 AS python-base
-FROM python-base AS builder-base
+FROM python:3.10-bookworm
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    \
     PIP_NO_CACHE_DIR=off \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
     PIP_DEFAULT_TIMEOUT=100 \
     AIOHTTP_NO_EXTENSIONS=1 \
-    \
-    PYSETUP_PATH="/opt/pysetup" \
-    VENV_PATH="/opt/pysetup/.venv" \
-    \
     DOCKER=true \
     GIT_PYTHON_REFRESH=quiet
 
+# System dependencies (combined into single layer, cache cleaned at the end)
 RUN apt-get update && apt-get upgrade -y && apt-get install --no-install-recommends -y \
     build-essential \
     curl \
@@ -33,21 +28,29 @@ RUN apt-get update && apt-get upgrade -y && apt-get install --no-install-recomme
     python3 \
     python3-dev \
     python3-pip \
-    wkhtmltopdf
-RUN curl -sL https://deb.nodesource.com/setup_18.x -o nodesource_setup.sh && \
-    bash nodesource_setup.sh && \
-    apt-get install -y nodejs && \
-    rm nodesource_setup.sh
-RUN rm -rf /var/lib/apt/lists/ /var/cache/apt/archives/ /tmp/*
+    s3cmd \
+    wkhtmltopdf \
+    && curl -sL https://deb.nodesource.com/setup_18.x -o /tmp/nodesource_setup.sh \
+    && bash /tmp/nodesource_setup.sh \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/ /var/cache/apt/archives/ /tmp/*
 
+# Create data directory
 WORKDIR /data
-RUN mkdir /data/private
+RUN mkdir -p /data/private
 
-RUN git clone https://github.com/coddrago/Heroku /data/Heroku
+# Copy application source (replaces git clone)
+COPY . /data/Heroku
 WORKDIR /data/Heroku
-RUN git fetch && git checkout master && git pull
 
+# Install Python dependencies
 RUN pip install --no-warn-script-location --no-cache-dir -U -r requirements.txt
 
+# Copy and set entrypoint
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 EXPOSE 8080
+
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["python", "-m", "heroku", "--root"]
